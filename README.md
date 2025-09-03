@@ -1,61 +1,45 @@
-🧠 AI Research Assistant
+# 🧠 AI Research Assistant
 
-This project is a research assistant powered by large language models and LangChain’s agent framework. It is designed to take natural language queries, use external tools, and return structured research results.
+An intelligent research assistant built with **LangChain**, **Anthropic Claude**, and custom tools for searching, retrieving information, and saving research results.  
 
-🌍 Concept
+This project demonstrates how to build an **agent-based research assistant** that:
+- Accepts a natural language research query.
+- Uses external tools (`search_tool`, `wiki_tool`, `save_tool`) to gather and process information.
+- Returns a **structured response** with topic, summary, sources, and tools used.
 
-The assistant works like a mini research pipeline:
+---
 
-Input Query – The user provides a research question in plain English.
+## 🌍 Concept
 
-Agent Reasoning – The system decides which tools are needed to answer the query.
+The assistant works as a **mini research pipeline**:
 
-Tool Execution – It calls tools such as:
+1. **User Query** – You type in a research question.  
+2. **Agent Planning** – The LLM decides which tools are needed.  
+3. **Tool Calls** – The agent calls search, wiki, or save tools.  
+4. **Final Answer** – A structured JSON-like response is generated.
 
-A search tool for web queries.
+---
 
-A wiki tool for retrieving structured knowledge.
+## 📖 Why Structured Output?
 
-A save tool for persisting results.
+The response is parsed into a **Pydantic model** instead of raw text.  
+This ensures:
+- Consistency in formatting.  
+- Easy integration into other applications.  
+- Automatic validation of data.  
 
-Structured Response – The output is formatted into a predefined schema (topic, summary, sources, tools used).
+---
 
-📖 Why Structured Output?
+## 📦 Installation
 
-Instead of plain text, results are returned as structured data. This allows:
+```bash
+git clone https://github.com/your-username/ai-research-assistant.git
+cd ai-research-assistant
 
-Easy integration with other applications (dashboards, APIs).
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate   # Mac/Linux
+venv\Scripts\activate      # Windows
 
-Consistency across multiple queries.
-
-Clear documentation of sources and tools used.
-
-🔧 Core Components
-
-LangChain Agent – Handles reasoning and tool orchestration.
-
-Anthropic Claude – Provides natural language intelligence.
-
-Custom Tools – Extendable functions for research (searching, retrieving, saving).
-
-Pydantic Models – Enforce strict formatting of responses.
-
-🎯 Purpose
-
-The goal is to create a reusable research assistant that can:
-
-Summarize large amounts of data.
-
-Cite reliable sources.
-
-Track which tools were used in the research process.
-
-🌟 Benefits
-
-Automation – Reduces manual effort in finding and summarizing data.
-
-Transparency – Always shows sources and reasoning.
-
-Flexibility – New tools can be added as needed.
-
-Reproducibility – Results follow a consistent schema.
+# Install dependencies
+pip install -r requirements.txt
