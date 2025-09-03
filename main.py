@@ -1,60 +1,60 @@
 from dotenv import load_dotenv
 from pydantic import BaseModel
-from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain.agents import create_tool_calling_agent, AgentExecutor
-from tools import search_tool
-from tools import wiki_tool, save_tool
-
+from tools import search_tool, wiki_tool, save_tool
 
 load_dotenv()
 
+
 class ResearchResponse(BaseModel):
-    topic:str
-    summary:str
-    sources:list[str]
-    tools_used:list[str]
+    topic: str
+    summary: str
+    sources: list[str]
+    tools_used: list[str]
+
 
 llm = ChatAnthropic(model="claude-3-5-haiku-20241022")
 parser = PydanticOutputParser(pydantic_object=ResearchResponse)
+
 
 prompt = ChatPromptTemplate.from_messages(
     [
         (
             "system",
-            """ You are a research assistant that will help generate a research paper.
-            Answer the user query and use neccessary tools.
-            Wrap the output in this format and provide no other text\n{format_instructions}
+            """You are a research assistant that will help generate a research paper.
+            Answer the user query and use necessary tools.
+            Wrap the output in this format and provide no other text
+            {format_instructions}
             """,
-
-
         ),
         ("placeholder", "{chat_history}"),
         ("human", "{query}"),
         ("placeholder", "{agent_scratchpad}"),
     ]
-).partial(format_instructions = parser.get_format_instructions())
-
-tools = [search_tool,wiki_tool,save_tool]
-
-agent = create_tool_calling_agent(
-    llm=llm,
-    prompt=prompt,
-    tools=tools
-
-)
-
-agent_executor = AgentExecutor(agent=agent, tools=[],verbose=True)
-query = input("What can I help you in research?")
-raw_reponse = agent_executor.invoke({"query": query})
+).partial(format_instructions=parser.get_format_instructions())
 
 
+tools = [search_tool, wiki_tool, save_tool]
 
-try:
-     structured_response = parser.parse(raw_reponse.get("output")[0]["text"])
-     print(structured_response)
-except Exception as e:
-     print("Error parsing response", e, "Raw Response -", raw_reponse)
-    
+
+agent = create_tool_calling_agent(llm=llm, prompt=prompt, tools=tools)
+agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+
+def run_research(query: str) -> ResearchResponse:
+    """Run the agent on a user query and return a structured ResearchResponse."""
+    raw_response = agent_executor.invoke({"query": query})
+
+    try:
+        
+        if isinstance(raw_response["output"], list):
+            text_output = raw_response["output"][0]["text"]
+        else:
+            text_output = raw_response["output"]
+
+        return parser.parse(text_output)
+
+    except Exception as e:
+        raise ValueError(f"Error parsing response: {e}, Raw: {raw_response}")
